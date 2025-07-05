@@ -3,9 +3,7 @@ package com.engeto.CryptoManager.Service;
 import com.engeto.CryptoManager.Model.Crypto;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -13,6 +11,7 @@ public class CryptoService {
 
     private List<Crypto> cryptos = new ArrayList<>();
     private static AtomicInteger atomicInteger = new AtomicInteger(0);
+    private Map<String, String> cryptoTypes = new HashMap<>();
 
     public void addCrypto(Crypto crypto) {
         cryptos.add(crypto);
@@ -33,13 +32,19 @@ public class CryptoService {
 
     public void createInitialList() {
         Random random = new Random();
-        Double priceRadndom = random.nextDouble() * 10;
-        Double quantityRadndom = random.nextDouble() * 5;
-
-        cryptos.add(new Crypto(atomicInteger.incrementAndGet(), "bitcoin", "BTC", priceRadndom, quantityRadndom));
-        cryptos.add(new Crypto(atomicInteger.incrementAndGet(), "ethereum", "ETH", priceRadndom, quantityRadndom));
-        cryptos.add(new Crypto(atomicInteger.incrementAndGet(), "dogecoin", "ELON", priceRadndom, quantityRadndom));
-        cryptos.add(new Crypto(atomicInteger.incrementAndGet(), "monero", "MNR", priceRadndom, quantityRadndom));
+        cryptoTypes.put("bitcoin", "BTC");
+        cryptoTypes.put("ripple", "XRP");
+        cryptoTypes.put("monero", "XMP");
+        cryptoTypes.put("dogecoin", "ELN");
+        cryptoTypes.put("ethereum", "ETH");
+        for (int i = 0; i < 4; i++) {
+            Double priceRadndom = random.nextDouble() * 10;
+            Double quantityRadndom = random.nextDouble() * 5;
+            List<String> list = new ArrayList<>(cryptoTypes.keySet().stream().toList());
+            Collections.shuffle(list);
+            String cryptoName = list.getFirst();
+            cryptos.add(new Crypto(atomicInteger.incrementAndGet(), cryptoName, cryptoTypes.get(cryptoName), priceRadndom, quantityRadndom));
+        }
     }
 
     public Double portfolioValue() {
@@ -51,7 +56,6 @@ public class CryptoService {
     }
 
     public boolean removeCryptoById(int id) {
-
         for (Crypto c : cryptos) {
             if (c.id().equals(id)) {
                 cryptos.remove(c);

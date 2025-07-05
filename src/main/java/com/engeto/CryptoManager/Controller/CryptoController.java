@@ -4,6 +4,7 @@ import com.engeto.CryptoManager.Model.Crypto;
 import com.engeto.CryptoManager.Service.CryptoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Comparator;
 import java.util.List;
 
@@ -14,15 +15,17 @@ public class CryptoController {
     CryptoService cryptoService;
 
     @GetMapping
-    public List<Crypto> listAllCryptoSorted(@RequestParam(defaultValue = "id", required = false) String sort) {
-        cryptoService.createInitialList();
-        Comparator<Crypto> comparator = switch (sort) {
-            case "quantity" -> Comparator.comparing(Crypto::quantity);
-            case "price" -> Comparator.comparing(Crypto::price);
-            case "name" -> Comparator.comparing(Crypto::name);
-            case null, default -> Comparator.comparing(Crypto::id);
-        };
-        return cryptoService.listAllCrypto().stream().sorted(comparator).toList();
+    public List<Crypto> listAllCryptoSorted(@RequestParam(required = false) String sort) {
+        if (!cryptoService.listAllCrypto().isEmpty()) {
+            Comparator<Crypto> comparator = switch (sort) {
+                case "quantity" -> Comparator.comparing(Crypto::quantity);
+                case "price" -> Comparator.comparing(Crypto::price);
+                case "name" -> Comparator.comparing(Crypto::name);
+                case null, default -> Comparator.comparing(Crypto::id);
+            };
+            return cryptoService.listAllCrypto().stream().sorted(comparator).toList();
+        }
+        return null;
     }
 
     @GetMapping("/{id}")
@@ -39,6 +42,12 @@ public class CryptoController {
     @GetMapping("/portfolio-value")
     public Double totalValue() {
         return cryptoService.portfolioValue();
+    }
+
+    @GetMapping("/init")
+    public int init() {
+        cryptoService.createInitialList();
+        return cryptoService.listAllCrypto().size();
     }
 
     @PostMapping
