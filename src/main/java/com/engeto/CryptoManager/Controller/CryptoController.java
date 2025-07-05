@@ -3,6 +3,9 @@ package com.engeto.CryptoManager.Controller;
 import com.engeto.CryptoManager.Model.Crypto;
 import com.engeto.CryptoManager.Service.CryptoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Comparator;
@@ -51,20 +54,22 @@ public class CryptoController {
     }
 
     @PostMapping
-    public void addCryptoAPI(@RequestBody Crypto crypto) {
+    public ResponseEntity addCryptoAPI(@RequestBody Crypto crypto) {
         cryptoService.addCrypto(crypto);
+        return new ResponseEntity("Kryptoměna " + crypto + " přidána do seznamu", HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public boolean updateCryptoById(@RequestBody Crypto crypto, @PathVariable int id) {
+    public ResponseEntity updateCryptoById(@RequestBody Crypto crypto, @PathVariable int id) {
         for (Crypto c : cryptoService.listAllCrypto()) {
             if (c.id().equals(id)) {
                 cryptoService.removeCryptoById(id);
                 cryptoService.addCrypto(crypto);
-                return true;
+                return new ResponseEntity("Kryptoměna " + crypto + " aktualizována v seznamu", HttpStatus.OK);
+                //return ResponseEntity.ok("Kryptoměna " + crypto + " aktualizována v seznamu");
             }
         }
-        return false;
+        return new ResponseEntity("Kryptoměna id: " + id + " nenalezena", HttpStatus.NOT_FOUND);//("Kryptoměna id: " + id + " nenalezena");
     }
 
     @GetMapping("removefirst")
